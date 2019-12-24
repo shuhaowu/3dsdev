@@ -1,0 +1,45 @@
+---
+- hosts: all
+  gather_facts: False
+  tasks:
+    - name: download devkitpro pacman
+      get_url:
+        url: https://github.com/devkitPro/pacman/releases/download/devkitpro-pacman-1.0.1/devkitpro-pacman.deb
+        dest: /home/luigi/devkitpro-pacman.deb
+        checksum: sha256:aa674feee79b00948154ba132ed36266e1ace9fe1974c430764449ea26ac1d7a
+      become: true
+      become_user: luigi
+
+    - name: install dependencies
+      apt:
+        name:
+          - build-essential
+          - libxml2
+          - wget
+        state: latest
+
+    - name: install devkitpro-pacman
+      apt:
+        deb: /home/luigi/devkitpro-pacman.deb
+
+    - name: chown devkitpro
+      file:
+        path: /opt/devkitpro
+        owner: luigi
+        group: luigi
+        recurse: true
+
+    - name: update pacman
+      command: /opt/devkitpro/pacman/bin/pacman --noconfirm -Syu
+      become: true
+      become_user: luigi
+
+    - name: install devkitpro dev stuff
+      command: /opt/devkitpro/pacman/bin/pacman --noconfirm --needed -S 3ds-dev switch-dev
+      become: true
+      become_user: luigi
+
+    - name: copying profile extension
+      copy:
+        src: devkitpro.sh
+        dest: /etc/profile.d/devkitpro.sh

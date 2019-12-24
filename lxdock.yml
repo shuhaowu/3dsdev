@@ -1,0 +1,22 @@
+name: nbrewdev
+image: ubuntu/bionic
+
+users:
+  - name: luigi
+    shell: /bin/bash
+    sudoer: yes
+
+shell:
+  user: luigi
+
+shares:
+  - source: ./projects
+    dest: /home/luigi/projects
+
+  # Want this so C autocompletion can work outside the container
+  - source: ./devkitpro
+    dest: /opt/devkitpro
+
+provisioning:
+  - type: ansible_local
+    dir: provisioning
